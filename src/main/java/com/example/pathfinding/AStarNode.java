@@ -4,14 +4,12 @@ public class AStarNode {
     private Vector2D vector2D;
     private int fScore;
     private int gScore;
-    private int hScore;
     private AStarNode parent;
 
     public AStarNode(Vector2D vector2D) {
         this.vector2D = vector2D;
-        this.fScore = 0;
-        this.gScore = 0;
-        this.hScore = 0;
+        this.fScore = Integer.MAX_VALUE;
+        this.gScore = Integer.MAX_VALUE;
     }
 
     public int getfScore() {
@@ -30,14 +28,6 @@ public class AStarNode {
         this.gScore = gScore;
     }
 
-    public int gethScore() {
-        return hScore;
-    }
-
-    public void sethScore(int hScore) {
-        this.hScore = hScore;
-    }
-
     public Vector2D getVector2D() {
         return vector2D;
     }
@@ -52,11 +42,5 @@ public class AStarNode {
 
     public void setParent(AStarNode parent) {
         this.parent = parent;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if(getClass() != obj.getClass()) return false;
-        return vector2D.equals(((AStarNode) obj).vector2D);
     }
 }
