@@ -1,3 +1,3 @@
 # A* Pathfinding Project in Java
 
-![java_ugMYikAlgX](https://github.com/Soralei/Java_Pathfinding/assets/62912193/e38fe9d4-9709-4326-bd1b-c3cb68c2e496)
+![java_ugMYikAlgX](https://github.com/Soralei/Java_Pathfinding/assets/62912193/c5f541db-aba5-46f5-80a5-3b7da436a305)
