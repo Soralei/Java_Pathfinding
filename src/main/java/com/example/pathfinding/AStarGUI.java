@@ -170,7 +170,11 @@ public class AStarGUI {
                     if(sq2 == null && action <= 0) { sq2 = clickPos; action++; }
 
                     if(sq1 != null && sq2 != null) {
-                        new Thread(() -> path = debugMode ? aStarMainDebug.findPath(sq1, sq2) : aStarMain.findPath(sq1, sq2)).start();
+                        if(debugMode) {
+                            new Thread(() -> debugPath = aStarMainDebug.findPath(sq1, sq2)).start();
+                        } else {
+                            path = aStarMain.findPath(sq1, sq2);
+                        }
                     }
                 }
 
