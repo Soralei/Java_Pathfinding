@@ -50,6 +50,9 @@ public class AStarMain {
                     // Ignore checking current.
                     if(x == 0 && y == 0) continue;
 
+                    // Ignore blocked nodes.
+                    if(getaStarGrid().getImpassable().contains(new Vector2D(neighbourX, neighbourY))) continue;
+
                     // Get the neighbour node. Create one if it doesn't yet exist.
                     int neighbourIndex = neighbourX + neighbourY * aStarGrid.getWidth();
                     if(neighbourIndex >= nodes.length || neighbourIndex < 0) continue;
@@ -92,19 +95,19 @@ public class AStarMain {
         return null;
     }
 
-    private int heuristicDistance(Vector2D from, Vector2D to) {
+    public int heuristicDistance(Vector2D from, Vector2D to) {
         // Square grid standard manhattan diagonal distance calculations
         int dx = Math.abs(from.x() - to.x());
         int dy = Math.abs(from.y() - to.y());
         return MOVEMENT_VERTICAL_COST * (dx + dy) + (MOVEMENT_DIAGONAL_COST - 2 * MOVEMENT_VERTICAL_COST) * Math.min(dx, dy);
     }
 
-    private int movementCost(Vector2D from, Vector2D to) {
+    public int movementCost(Vector2D from, Vector2D to) {
         boolean isDiagonal = from.y() != to.y() && from.x() != to.x();
         return isDiagonal ? MOVEMENT_DIAGONAL_COST : MOVEMENT_VERTICAL_COST;
     }
 
-    private ArrayList<AStarNode> constructPath(AStarNode from) {
+    public ArrayList<AStarNode> constructPath(AStarNode from) {
         ArrayList<AStarNode> path = new ArrayList<>();
         AStarNode current = from;
         do {
