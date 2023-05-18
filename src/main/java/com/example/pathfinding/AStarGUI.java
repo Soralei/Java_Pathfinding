@@ -2,10 +2,9 @@ package main.java.com.example.pathfinding;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
+import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.PriorityQueue;
 import java.util.Set;
 
 public class AStarGUI {
@@ -18,14 +17,19 @@ public class AStarGUI {
         g.fillRect((x + offset) * squareSize - (actualSize/2), (y + offset) * squareSize - (actualSize/2), actualSize, actualSize);
     }
 
+    private final static JFrame jFrame = new JFrame("A* GUI");
     private static Vector2D sq1 = null;
     private static Vector2D sq2 = null;
-    private static ArrayList<AStarNode> path = null;
     private static boolean isAddingBlocks = false;
     private static boolean isRemovingBlocks = false;
+    private static boolean debugMode = false;
+    private final static AStarGrid aStarGrid = new AStarGrid(100, 100);
+    private final static AStarMain aStarMain = new AStarMain(aStarGrid);
+    private final static AStarMainDebug aStarMainDebug = new AStarMainDebug(jFrame, aStarGrid);
+    private static ArrayList<AStarNode> path = null;
+    private static ArrayList<AStarNode> debugPath = aStarMainDebug.getPath();
 
     public static void main(String[] args) {
-        JFrame jFrame = new JFrame("A* GUI");
         jFrame.setSize((100 + 5) * 10, (100 + 5) * 10);
         jFrame.setLocationRelativeTo(null);
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -33,8 +37,6 @@ public class AStarGUI {
         int OFFSET = 1;
         int SQUARE_SIZE = 10;
         int PATH_SIZE = 5;
-
-        AStarMain aStarMain = new AStarMain(new AStarGrid(100, 100));
 
         JPanel jPanel = new JPanel(){
             @Override
@@ -52,12 +54,37 @@ public class AStarGUI {
                 if(sq2 != null) { doFillRect(g, sq2.x(), sq2.y(), SQUARE_SIZE, PATH_SIZE + 4, OFFSET); }
 
                 g.setColor(Color.BLUE);
-                if (path != null) {
+                if(path != null) {
                     path.forEach(p -> doFillRect(g, p.getVector2D().x(), p.getVector2D().y(), SQUARE_SIZE, PATH_SIZE, OFFSET));
                 }
 
+                if(debugMode) {
+                    debugPath.forEach(p -> doFillRect(g, p.getVector2D().x(), p.getVector2D().y(), SQUARE_SIZE, PATH_SIZE, OFFSET));
+                }
+
+                // They use the same grid, so unless they have been manually assigned separate grids, this won't do anything.
                 g.setColor(Color.BLACK);
-                aStarMain.getaStarGrid().getImpassable().forEach(blocked -> doFillRect(g, blocked.x(), blocked.y(), SQUARE_SIZE, SQUARE_SIZE, OFFSET));
+                if(debugMode) {
+                    aStarMainDebug.getaStarGrid().getImpassable().forEach(blocked -> doFillRect(g, blocked.x(), blocked.y(), SQUARE_SIZE, SQUARE_SIZE, OFFSET));
+                } else {
+                    aStarMain.getaStarGrid().getImpassable().forEach(blocked -> doFillRect(g, blocked.x(), blocked.y(), SQUARE_SIZE, SQUARE_SIZE, OFFSET));
+                }
+
+                // Used to display open and closed nodes.
+                if(debugMode) {
+                    PriorityQueue<AStarNode> openNodes = aStarMainDebug.getOpenNodes();
+                    ArrayList<AStarNode> closedNodes = aStarMainDebug.getClosedNodes();
+
+                    if(openNodes != null && openNodes.size() > 0) {
+                        g.setColor(Color.GREEN);
+                        openNodes.forEach(open -> doDrawRect(g, open.getVector2D().x(), open.getVector2D().y(), SQUARE_SIZE, 9, OFFSET));
+                    }
+
+                    if(closedNodes != null && closedNodes.size() > 0) {
+                        g.setColor(Color.RED);
+                        closedNodes.forEach(closed -> doDrawRect(g, closed.getVector2D().x(), closed.getVector2D().y(), SQUARE_SIZE, 9, OFFSET));
+                    }
+                }
             }
         };
 
@@ -70,13 +97,24 @@ public class AStarGUI {
                     int squareX = (e.getX() - 5) / 10;
                     int squareY = (e.getY() - 5) / 10;
                     Vector2D clickPos = new Vector2D(squareX, squareY);
-                    Set<Vector2D> impassable = aStarMain.getaStarGrid().getImpassable();
+                    Set<Vector2D> impassable = debugMode ? aStarMainDebug.getaStarGrid().getImpassable() : aStarMain.getaStarGrid().getImpassable();
                     if(isAddingBlocks) {
                         impassable.add(clickPos);
                     } else if (isRemovingBlocks) {
                         impassable.remove(clickPos);
                     }
                     jFrame.repaint();
+                }
+            }
+        });
+
+        jFrame.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                super.keyReleased(e);
+                if(e.getKeyCode() == KeyEvent.VK_SPACE) {
+                    debugMode = !debugMode;
+                    jPanel.repaint();
                 }
             }
         });
@@ -132,7 +170,7 @@ public class AStarGUI {
                     if(sq2 == null && action <= 0) { sq2 = clickPos; action++; }
 
                     if(sq1 != null && sq2 != null) {
-                        path = aStarMain.findPath(sq1, sq2);
+                        new Thread(() -> path = debugMode ? aStarMainDebug.findPath(sq1, sq2) : aStarMain.findPath(sq1, sq2)).start();
                     }
                 }
 
@@ -141,7 +179,6 @@ public class AStarGUI {
         });
 
         jFrame.setContentPane(jPanel);
-
         jFrame.setVisible(true);
     }
 }
