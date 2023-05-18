@@ -3,24 +3,24 @@ package main.java.com.example.pathfinding;
 import java.util.*;
 
 public class AStarMain {
-    int WIDTH = 100;
-    int HEIGHT = 100;
+    private AStarGrid aStarGrid;
     int MOVEMENT_VERTICAL_COST = 10;
     int MOVEMENT_DIAGONAL_COST = 14;
 
+    public AStarMain(AStarGrid aStarGrid) {
+        this.aStarGrid = aStarGrid;
+    }
+
     public ArrayList<AStarNode> findPath(Vector2D start, Vector2D target) {
-        // Min heap for O(log n) time complexity.
-        final PriorityQueue<AStarNode> openNodes = new PriorityQueue<>(new AStarNodeComparator());
+        final PriorityQueue<AStarNode> openNodes = new PriorityQueue<>(new AStarNodeComparator()); // Min heap for O(log n) time complexity.
         final ArrayList<AStarNode> closedNodes = new ArrayList<>();
 
         // Rather than tracking all nodes on the grid, create nodes as we scan them and store them by index here.
-        AStarNode[] nodes = new AStarNode[WIDTH * HEIGHT];
-        int index = start.x() + start.y() * WIDTH;
+        AStarNode[] nodes = new AStarNode[aStarGrid.getWidth() * aStarGrid.getHeight()];
+        int index = start.x() + start.y() * aStarGrid.getWidth();
 
         // Set up the initial node to start the algorithm from.
         AStarNode initial = new AStarNode(start);
-        initial.setgScore(0);
-        initial.setfScore(heuristicDistance(start, target));
         nodes[index] = initial;
         openNodes.add(nodes[index]);
 
@@ -37,7 +37,7 @@ public class AStarMain {
             closedNodes.add(current);
 
             // Check adjacent positions of current.
-            int currentIndex = current.getVector2D().x() + current.getVector2D().y() * WIDTH;
+            int currentIndex = current.getVector2D().x() + current.getVector2D().y() * aStarGrid.getWidth();
             for(int y = -1; y <= 1; y++) {
                 for(int x = -1; x <= 1; x++) {
                     // Get the x and y of the neighbour.
@@ -45,13 +45,13 @@ public class AStarMain {
                     int neighbourY = current.getVector2D().y() + y;
 
                     // Make sure the x and y is within the grid.
-                    if(neighbourX < 0 || neighbourX >= WIDTH || neighbourY < 0 || neighbourY >= HEIGHT) continue;
+                    if(neighbourX < 0 || neighbourX >= aStarGrid.getWidth() || neighbourY < 0 || neighbourY >= aStarGrid.getHeight()) continue;
 
                     // Ignore checking current.
                     if(x == 0 && y == 0) continue;
 
                     // Get the neighbour node. Create one if it doesn't yet exist.
-                    int neighbourIndex = neighbourX + neighbourY * WIDTH;
+                    int neighbourIndex = neighbourX + neighbourY * aStarGrid.getWidth();
                     if(neighbourIndex >= nodes.length || neighbourIndex < 0) continue;
                     if(nodes[neighbourIndex] == null) {
                         nodes[neighbourIndex] = new AStarNode(new Vector2D(neighbourX, neighbourY));
@@ -113,5 +113,13 @@ public class AStarMain {
         } while(current != null);
 
         return path;
+    }
+
+    public AStarGrid getaStarGrid() {
+        return aStarGrid;
+    }
+
+    public void setaStarGrid(AStarGrid aStarGrid) {
+        this.aStarGrid = aStarGrid;
     }
 }

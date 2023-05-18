@@ -11,7 +11,7 @@ public class AStarGUI {
         jFrame.setLocationRelativeTo(null);
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        AStarMain aStarMain = new AStarMain();
+        AStarMain aStarMain = new AStarMain(new AStarGrid(100, 100));
         ArrayList<AStarNode> path = aStarMain.findPath(new Vector2D(0, 0), new Vector2D(50, 99));
 
         int OFFSET = 1;

@@ -8,8 +8,6 @@ public class AStarNode {
 
     public AStarNode(Vector2D vector2D) {
         this.vector2D = vector2D;
-        this.fScore = Integer.MAX_VALUE;
-        this.gScore = Integer.MAX_VALUE;
     }
 
     public int getfScore() {
